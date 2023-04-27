@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vimeo Listener</title>
+  <script src="https://player.vimeo.com/api/player.js"></script>
+</head>
+<body>
+  <script>
+    window.addEventListener('message', (event) => {
+      if (event.data.action === 'setupVimeoListener' && event.data.videoId) {
+        const vimeoIframe = parent.document.querySelector('iframe[src*="vimeo"]');
+
+        if (vimeoIframe) {
+          const player = new Vimeo.Player(vimeoIframe);
+
+          player
+            .ready()
+            .then(() => {
+              console.log('ready');
+              player.on('play', (data) => {
+                console.log('played');
+              });
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+        }
+      }
+    });
+  </script>
+</body>
+</html>
