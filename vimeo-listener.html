@@ -1,34 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vimeo Listener</title>
-  <script src="https://player.vimeo.com/api/player.js"></script>
-</head>
-<body>
-  <script>
-    window.addEventListener('message', (event) => {
-      if (event.data.action === 'setupVimeoListener' && event.data.videoId) {
-        const vimeoIframe = parent.document.querySelector('iframe[src*="vimeo"]');
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vimeo Listener</title>
+    <script src="https://player.vimeo.com/api/player.js"></script>
+  </head>
+  <body>
+    <script>
+      const onVimeoEvent = (event) => {
+        // Send a message to the parent window with the Vimeo event
+        window.parent.postMessage({ type: 'vimeoEvent', event: event }, '*');
+      };
 
-        if (vimeoIframe) {
-          const player = new Vimeo.Player(vimeoIframe);
+      // Set up the Vimeo player and event listeners
+      const setupVimeoPlayer = (videoId) => {
+        const player = new Vimeo.Player(videoId);
+        player.on('play', onVimeoEvent);
+        // Add other event listeners as needed
+      };
 
-          player
-            .ready()
-            .then(() => {
-              console.log('ready');
-              player.on('play', (data) => {
-                console.log('played');
-              });
-            })
-            .catch((error) => {
-              console.error('Error:', error);
-            });
+      // Listen for messages from the parent window
+      window.addEventListener('message', (event) => {
+        if (event.data.type === 'setupVimeoPlayer') {
+          setupVimeoPlayer(event.data.videoId);
         }
-      }
-    });
-  </script>
-</body>
+      });
+    </script>
+  </body>
 </html>
